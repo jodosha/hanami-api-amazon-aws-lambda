@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+dir=$(pwd)
+src=$dir/config.example
+dst=$dir/.config
+
+copy() {
+  cp $src $dst
+}
+
+print_instructions() {
+  echo "Setup done, remember to edit configuration file with your settings ($dst)"
+}
+
+main() {
+  copy
+  print_instructions
+}
+
+main

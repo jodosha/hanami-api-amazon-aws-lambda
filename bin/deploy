@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+compressed=function.zip
+
+setup() {
+  # Export this ENV var in your .bashrc or .zshrc
+  export GPG_TTY=$(tty)
+
+  if test -f $(pwd)/.config ; then
+    . $(pwd)/.config
+  else
+    echo "No config file:" $(pwd)/.config
+    exit 1
+  fi
+}
+
+compress() {
+  zip -r $compressed lambda.rb app.rb vendor
+}
+
+upload() {
+  aws lambda update-function-code --region $region --function-name $function --zip-file fileb://$compressed
+}
+
+teardown() {
+  rm $compressed
+}
+
+main() {
+  setup
+  compress
+  upload
+  teardown
+}
+
+main

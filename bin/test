@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+output=out.json
+
+setup() {
+  # Export this ENV var in your .bashrc or .zshrc
+  export GPG_TTY=$(tty)
+
+  if test -f $(pwd)/.config ; then
+    . $(pwd)/.config
+  else
+    echo "No config file:" $(pwd)/.config
+    exit 1
+  fi
+}
+
+request() {
+  aws lambda invoke --region $region --function-name $function $output --log-type Tail --query 'LogResult' --output text |  base64 -D
+}
+
+print_output() {
+  echo
+  cat $output
+  echo
+}
+
+teardown() {
+  rm $output
+}
+
+main() {
+  setup
+  request
+  print_output
+  teardown
+}
+
+main
