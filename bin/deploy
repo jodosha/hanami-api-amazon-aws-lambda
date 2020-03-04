@@ -17,7 +17,7 @@ setup() {
 }
 
 compress() {
-  zip -r $compressed lambda.rb app.rb vendor
+  zip -r $compressed handler.rb app.rb aws vendor
 }
 
 upload() {
