@@ -11,9 +11,10 @@ end
 
 RSpec.describe "Request: POST /tracks", type: :request do
   it "returns successful response" do
-    post("/tracks", JSON.generate(track: { title: title = "There is no time elsewhere" }), "CONTENT_TYPE" => "application/json")
+    post("/tracks", JSON.generate(track: payload = { title: "There is no time elsewhere" }), "CONTENT_TYPE" => "application/json")
 
     expect(last_response.status).to be(201)
-    expect(last_response.body).to eq("Track created: #{title}")
+    expect(last_response.headers["Content-Type"]).to eq("application/json")
+    expect(last_response.body).to eq(JSON.generate(track: payload))
   end
 end

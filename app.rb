@@ -17,6 +17,6 @@ class App < Hanami::API
 
   post "/tracks" do
     status 201
-    "Track created: #{params.dig(:track, :title)}"
+    json(track: params[:track])
   end
 end
