@@ -3,6 +3,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 compressed=function.zip
+vendor=$(pwd)/vendor
 
 setup() {
   # Export this ENV var in your .bashrc or .zshrc
@@ -16,8 +17,12 @@ setup() {
   fi
 }
 
+bundle_pkg() {
+  bundle install --path=$vendor --without=test
+}
+
 compress() {
-  zip -r $compressed handler.rb app.rb aws vendor
+  zip -r $compressed handler.rb app.rb aws $vendor
 }
 
 upload() {
@@ -26,10 +31,14 @@ upload() {
 
 teardown() {
   rm $compressed
+  rm -rf $vendor
+
+  git checkout .bundle/config Gemfile.lock
 }
 
 main() {
   setup
+  bundle_pkg
   compress
   upload
   teardown
