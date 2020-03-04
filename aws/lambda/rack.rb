@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require "stringio"
 require "rack"
+require "json"
+require "stringio"
 require "base64"
 
 module AWS
@@ -47,12 +48,25 @@ module AWS
       end
 
       def self.body_for(event)
-        # Check if the body is base64 encoded. If it is, try to decode it
-        if event["isBase64Encoded"]
-          Base64.decode64(event["body"])
+        case body = event["body"]
+        when String
+          if event["isBase64Encoded"]
+            Base64.decode64(body)
+          else
+            body
+          end
+        when Hash, Array
+          # FIXME: It looks like that when request header `Content-Type: "application/json"` is set
+          # AWS Lambda already parses `body:` into a Ruby Hash/Array.
+          #
+          # Because this method suppose to return a String to create the `"rack.input"` value in Rack env,
+          # we're forced to serialize again body into JSON, so it can be parsed properly again by the Hanami::Middleware::BodyParser.
+          #
+          # This is inefficient, and should be worked around.
+          JSON.generate(body)
         else
-          event["body"]
-        end || ""
+          ""
+        end
       end
 
       # Code from https://github.com/aws-samples/serverless-sinatra-sample/blob/master/lambda.rb

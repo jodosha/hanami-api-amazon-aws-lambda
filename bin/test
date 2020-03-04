@@ -17,7 +17,7 @@ setup() {
 }
 
 request() {
-  aws lambda invoke --region $region --function-name $function $output --log-type Tail --query 'LogResult' --output text |  base64 -D
+  aws lambda invoke --region $region --function-name $function $output --payload '{"httpMethod":"POST", "path":"/tracks", "headers":{"Content-Type":"application/json"}, "body":{"track":{"title":"There Is No Now Elsewhere"}}}' --log-type Tail --query 'LogResult' --output text |  base64 -D
 }
 
 print_output() {
